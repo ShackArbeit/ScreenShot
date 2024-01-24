@@ -73,14 +73,16 @@
     </div>
     <div id="close" onclick="closeCheck()">❌</div>
     <script>
+        let map
     //   window.confirm('你可以按下截圖按鈕直接選取範圍並截圖，截取的圖可以直接在你本機的 Download 資料夾中看見 !')
-        function initMap() {
-            const map = new google.maps.Map(document.getElementById('map'), {
-               center: { lat: 25.08, lng: 121.55 },
-                 zoom: 12
-             });
+       async  function initMap() {
+        const { Map } = await google.maps.importLibrary("maps");
+        map = new Map(document.getElementById("map"), {
+                    center: { lat:25.0676843 ,lng: 121.5280133  },
+                    zoom: 12,
+                });
          }
-         initMap();
+
          let img , imageContainerArray=[]
     // 函式changeScreenShot 依據官方文件並使用其 API
    // 初始化截圖套件及呈現截圖的函式設定
