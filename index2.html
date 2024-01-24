@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=
+    AIzaSyCpAqja_IdyYYjkHPCp7WonW1ToQBDNNuc&callback=initMap"></script>
+    <script src="test.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <h3>
+            截圖 Package 文字展示
+        </h3>
+        <br /> 
+        <button 
+        type="button" class="btn btn-success fw-bold"
+        onclick="changeScreenShot()"> 點擊截圖 </button>
+    </div>
+    <div id="map" style="height: 95vh;width:100vw"></div>
+    <script>
+    //   window.confirm('你可以按下截圖按鈕直接選取範圍並截圖，截取的圖可以直接在你本機的 Download 資料夾中看見 !')
+        function initMap() {
+            const map = new google.maps.Map(document.getElementById('map'), {
+               center: { lat: 25.08, lng: 121.55 },
+                 zoom: 12
+             });
+         }
+    </script>
+    <script>
+    // 函式changeScreenShot 依據官方文件並使用其 API
+    const changeScreenShot = () => {
+         new screenShotPlugin({
+    // 這裡為修改各種圖示的設定
+        /*hiddenToolIco:{round:true,square:true,rightTop:true,brush:true,mosaicPen:true,
+                    text:true,undo:true},*/
+    // 這裡是將截圖的內容從 loaclSession 中拿出來並送到 Database 內
+        completeCallback: (screenShotImg) => {
+				alert(screenShotImg);
+				saveScreenshotToDatabase(screenShotImg);
+           },
+             
+       })
+    }
+  // 在這函式中撰寫一個 Post API 並將截圖的資訊送到 MongoDB 內
+  // 而 POST API 放在 indexPhoto.js 檔案內
+  // 這裡使用 nodemon 套件，可使 NodeJs 永遠保持 Server 的狀態
+  // 請在終端機中輸入 npm run server (此為 package.json 中 script 的設定)
+    const saveScreenshotToDatabase = (screenShotImg) => {
+    fetch('http://localhost:3000/save-screenshot', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(screenShotImg),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('保存成功', data);
+        console.log(screenShotImg)
+    })
+    .catch(error => {
+        console.error('保存失败', error);
+    });
+}
+    </script>
+   
+
+  
+</body>
+
+</html>

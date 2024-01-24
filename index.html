@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCpAqja_IdyYYjkHPCp7WonW1ToQBDNNuc&callback=initMap"></script>
+    <script src="test.js"></script>
+    <title>截圖示範</title>
+    <style>
+        *{
+            position: relative;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        #app {
+            position: absolute;
+            top: 65px; 
+            left: 10px;
+            z-index: 1000;
+            }
+            #map {
+                        height: 100vh;
+                        width: 100vw;
+                        position: relative;
+            }
+            #showImg{
+                display:none;
+                position:absolute;
+                top:50%;
+                left:50%;
+                transform: translate(-50%,-50%);
+                width:800px;
+                height:600px;
+                border:2px solid #59adff;
+            } 
+            #close{
+                position:absolute;
+                top:13%;
+                left:75%;
+                font-size: 40px;;
+                display:none;
+            }
+    </style>
+</head>
+
+<body>
+    <!-- 設定所有按鈕的容器 -->
+    <div id="app">
+   <!--  第一個按鈕點擊後可以進行截圖 -->
+        <button type="button" class="btn btn-success fw-bold" onclick="changeScreenShot()">點擊截圖</button>
+   <!-- 第二個按鈕點擊後可以查看截圖 -->
+        <button type="button" class="btn btn-primary fw-bold" onclick="checkScreenShotPhoto()">查看截圖</button>
+    </div>
+    <div id="map"></div>
+    <div id="showImg" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner"></div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#showImg" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#showImg" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+    <div id="close" onclick="closeCheck()">❌</div>
+    <script>
+    //   window.confirm('你可以按下截圖按鈕直接選取範圍並截圖，截取的圖可以直接在你本機的 Download 資料夾中看見 !')
+        function initMap() {
+            const map = new google.maps.Map(document.getElementById('map'), {
+               center: { lat: 25.08, lng: 121.55 },
+                 zoom: 12
+             });
+         }
+         let img , imageContainerArray=[]
+    // 函式changeScreenShot 依據官方文件並使用其 API
+   // 初始化截圖套件及呈現截圖的函式設定
+  function changeScreenShot() {
+            if (window.confirm('你可以按下截圖按鈕直接選取範圍並截圖，截取的圖可以按下查看按鈕進行查看 !')) 
+                new screenShotPlugin({
+           // 使用套件內建的 API 設定，消除不想要的編輯 ICON 圖示
+           // mosaicPen 為馬賽克工具，text 是文本工具，undo 是撤銷工具
+            hiddenToolIco:{mosaicPen:true, text:true,undo:true},
+          // 此 API 是截圖資訊的 Callback Function，其中預設參數 base64 即是截圖的預設 src
+          completeCallback: function ({base64}) {
+          // 建立新的圖片容器
+                         img = new Image();
+                        console.log(base64)
+          // 將圖片容器的 src 設為截圖的 src
+                        img.src = base64;
+                        imageContainerArray.push(img.src)
+                        console.log(imageContainerArray)
+          // 將此 src 放入 Sweet Alert2 彈跳視窗內
+                        Swal.fire({
+                        title: "這是你的所選取的圖片",
+                        html: `<img src="${base64}" style="max-width: 100%; max-height: 100%;" />`,
+                        text: "若不喜歡這張截圖，可以重新截取!",
+                         icon: "info"
+                          });
+         // 刪除 local Session 內的紀錄，確保每一次都是最新的截圖
+            // sessionStorage.removeItem('screenShotImg');
+        }        
+        })
+    }
+    function checkScreenShotPhoto() {
+            const  carouselInnerContainer=document.getElementById('showImg')
+            const carouselInner = document.querySelector('#showImg .carousel-inner');
+            const  closeIcon=document.getElementById('close')
+            carouselInner.innerHTML = ''; // 清空先前的內容
+             carouselInnerContainer.style.display='block';
+             closeIcon.style.display='block';
+            // 迭代所有截圖，並將它們加到 Carousel 中
+            imageContainerArray.forEach((src, index) => {
+                const carouselItem = document.createElement('div');
+                carouselItem.className = 'carousel-item';
+                if (index === 0) {
+                    carouselItem.classList.add('active');
+                }
+
+                const showImg = new Image();
+                showImg.src = src;
+                carouselItem.style.width='100%'
+                carouselItem.style.height='100%'
+                showImg.style.width='800px'
+                showImg.style.height='600px'
+                // showImg.className = 'rounded mx-auto my-auto d-block';
+
+                // 將每張截圖添加到 Carousel 內
+                carouselItem.appendChild(showImg);
+                carouselInner.appendChild(carouselItem);
+                console.log(carouselItem);
+                console.log(carouselInner)
+            // 啟動 Carousel
+            const carousel = new bootstrap.Carousel(document.getElementById('showImg'));
+        }
+            )
+    }
+  
+
+   function closeCheck(){
+    const  carouselInnerContainer=document.getElementById('showImg')
+    const  closeIcon=document.getElementById('close')
+    closeIcon.style.display='none'
+    carouselInnerContainer.style.display='none'
+   }
+ 
+    </script>
+   
+
+  
+</body>
+
+</html>
